@@ -74,8 +74,6 @@ From: python:latest
 	apt-get install -y vim
 	apt-get clean
 	pip install numpy
-	alias ll='ls -l'
-	alias la='ls -la'
 
 # Environment variables to set
 %environment
@@ -145,10 +143,17 @@ apptainer build /tmp/my_finished_container.sif /tmp/alpine
 
 `apptainer exec --bind /scratch:/data example.sif ls /data` # Scratch is bound AS data
 
-
 ## Tips
 
 - Use `/opt` or `/usr/local` for custom files and software installations. Avoid `/home` and `/root`.
+
+- If getting `TLS handshake timeout` errors, consider changing the DNS server to Google's:
+
+```
+sudo nano /etc/resolv.conf
+# Comment out current nameserver line (backup), and add a new one like so:
+nameserver 8.8.8.8
+```
 
 - Sensitive code or data should be bind mounted onto the container rather than incorporated during the build, as then they won't be public in the image. Dependencies of said sensitive code can be included safely in the image during build.
 
@@ -175,5 +180,4 @@ environment.yml /opt
     To run xyz from the environment:
 
         apptainer run my_environment.sif xyz
-
 ```
