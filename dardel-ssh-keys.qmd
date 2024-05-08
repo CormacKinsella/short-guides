@@ -1,0 +1,63 @@
+# Setting up an ssh key pair for Dardel login
+
+**See [here](https://www.pdc.kth.se/support/documents/login/ssh_keys.html) and [here](https://www.pdc.kth.se/support/documents/login/ssh_login.html) for detailed instructions**
+
+**Note that each IP address you log in from will require a separate key set up. If you regularly change IP address, consider setting up Kerberos authentication instead.**
+
+## Basic set up:
+
+### Create a new public/private key pair & give it a useful name
+
+`ssh-keygen -t ed25519 -f ~/.ssh/id-ed25519-pdc_USEFUL-NAME`
+
+### Upload the **public** key (.pub extension) to PDC [here](https://loginportal.pdc.kth.se)
+
+### To login:
+
+`ssh -i ~/.ssh/id-ed25519-pdc_USEFUL-NAME MY_USERNAME@dardel.pdc.kth.se`
+
+- Basic ssh/scp functionality should now be possible by specifying the private key in your `ssh` command
+
+## More advanced customisation:
+
+### Avoid typing the key path and user@hostname each time you ssh into a specific server
+
+`nano ~/.ssh/config`
+
+-   Once inside the file, type out the following config information, replacing the placeholders with your own details:
+
+```         
+Host dardel
+        Hostname dardel.pdc.kth.se
+        User MY_USERNAME
+        IdentityFile ~/.ssh/id-ed25519-pdc_USEFUL-NAME
+```
+
+-   This associates the server hostname, your username, and your private ssh key with the phrase `dardel`
+
+-   You can now just type `ssh dardel` to use those credentials
+
+-   Save as many of these custom credential sets as you need in the same config file
+
+### Avoid typing your password each time (works for the existing session):
+
+`eval $(ssh-agent)`
+
+`ssh-add ~/.ssh/id-ed25519-pdc_USEFUL-NAME`
+
+## Other notes
+
+-   PDC wants you to upload the public key to Dardel via SUPR authentication, but other servers are often less strict
+
+-   For these, you can upload your public key from the command line:
+
+`ssh-copy-id -i ~/.ssh/id-ed25519-rackham.pub MY_USERNAME@rackham.uppmax.se`
+
+-   Or do it manually from within the remote server:
+
+```         
+ssh MY_USERNAME@rackham.uppmax.se
+nano ~/.ssh/authorized_keys
+
+# Paste the contents of the public key file, exit both server and local client, reboot, and log in
+```
