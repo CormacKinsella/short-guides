@@ -1,0 +1,179 @@
+# Apptainer for containerization on HPC systems
+
+Based mostly on the materials [here](https://coderefinery.github.io/ttt4hpc_containers)
+
+## Why use containers (e.g., vs Conda/Mamba)?
+
+- Even if software dependencies are closely matched across systems, scientific workflows do use underlying system libraries from the host operating system. These will vary or be absent across systems. OS updates on one system can also break working software environments by altering such libraries.
+
+- This issue means uncontained software is not portable, even when using software environment managers such as `mamba`. This is a problem for reproducibility in science.
+
+- Containers are a solution to this, as they package software alongside the OS and system libraries into portable images, making fully portable environments.
+
+- They differ from virtual machines in that they only virtualise at the OS level and above, whereas virtual machines virtualise hardware also. Containers have less overhead and are generally more lightweight.
+
+## Why Apptainer rather than Docker for HPC systems?
+
+- Docker is among the most popular container tools (Kubernetes is another), but for scientific applications using HPC systems **Apptainer** (AKA Singularity) is the current choice. This is because Docker requires root access to run, which is usually not available on HPC systems. Apptainer does not require root access.
+
+- With that said, even if using Apptainer, Docker is still useful for building images, as Apptainer can convert Docker images to Apptainer images. Docker also hosts the free container registry Docker Hub which Apptainer can interact with directly. Having both Docker and Apptainer on your local `sudo` machine can be useful.
+
+## Docker vs Apptainer images
+
+- Docker images are built up of layers (analogy of a painting). Layers essentially add changes on top of a base image. **Dockerfiles** are used to define the layers and their order. Components that can be added as layers are stored in registries. In this way registries don't have to redundantly store similar images or parts of images, the Dockerfile will simply reference the base image and the changes to be made to it, and end users can rebuild the image locally. Usually they are transferred via registries or as tarballs.
+
+- Apptainer images have only one layer (analogy of printing out an image of a painting), stored in a `.sif` (Singularity image format) file. They are more portable and more easily archived as single files. They are defined and built using **definition files** (`.def`).
+
+- Apptainer can build `.sif` images from Docker images, whereby they'll squash all the layers into a single layer. When doing this, additional build steps and runtime behaviour can be added using a `.def`. During the process Apptainer will download 'blobs' from a registry (e.g. Docker Hub), corresponding to Docker image layers. Blobs are cached (by default in `~/.apptainer/cache`) so that next time you need the same blob it's already local. On file systems with limited `$HOME` storage quotas we need to be careful not to fill it.
+
+- To inspect & clean the cache, use `apptainer cache list` & `apptainer cache clean`. If required, the cache can be set to a different location with a larger storage quota:
+
+```
+mkdir /pathto/apptainer_cache
+export APPTAINER_CACHE=/pathto/apptainer_cache  # Add this line to your .bashrc file
+```
+
+## Pulling a container image from a registry, e.g. Docker Hub
+
+`apptainer pull <container_name> <tag>` # Pulls a container from the registry, e.g.:
+
+`apptainer pull python.sif docker://python:3.8.19`
+
+## Running an image
+
+- The container image can be interacted with in several ways, e.g.:
+
+`apptainer run python.sif` # Executes the runscript of the container, which may or may not be present - these are optionally (but ideally) added by container creators in the config file, and are intended to execute the default program.
+
+`apptainer shell python.sif` # Opens a shell in the container environment. You can think of this like an `ssh` command into a remote system, except here the user, location, and underlying machine will remain identical - only the environment changes.
+
+`apptainer exec python.sif cat /etc/debian_version` # Executes a the trailing command within the container environment, without starting up the shell.
+
+## Building an Apptainer image
+
+- Structure of a `.def` file:
+
+```
+# Specify registry/method to get the layers from (Docker Hub)
+Bootstrap: docker
+
+# Specify the base image
+From: python:latest
+
+# Specify custom files to be included, and where they should go in the container
+%files
+    python_script.py /opt
+
+# Define the runscript, i.e., how will the container behave on `apptainer run <container_name>.sif`. Not executed during build or shell.
+%runscript
+    echo "This is the run script, but it's empty right now!"
+
+# Commands to run during build after the base image is set up (as "fake root" user - therefore remove `sudo` commands from install scripts)
+%post
+	apt-get update
+	apt-get install -y vim
+	apt-get clean
+	pip install numpy
+	alias ll='ls -l'
+	alias la='ls -la'
+
+# Environment variables to set
+%environment
+	export MYVAR=hello
+
+# Labels for metadata
+%labels
+        Author: CMK
+		Version: v0.1
+        Description: Minimal image for HPC testing
+
+# Help text
+%help
+        This container does very little right now.
+```
+
+- Command for building the image:
+
+`apptainer build example_container.sif python.def`
+
+- Test installation of numpy:
+
+`apptainer exec example_container.sif python -c 'import numpy; print (numpy.__version__)'`
+
+- Check help message:
+
+`apptainer run-help example_container.sif`
+
+- Inspect a container:
+
+`apptainer inspect example_container.sif`
+
+## Workflow for developing a container (sandbox containers)
+
+- If developing a container you may want to make changes to it & test things. This is possible with a sandbox container, which is a directory structure rather than a `.sif`.
+
+- Example workflow:
+
+```
+apptainer build --sandbox /tmp/alpine docker://alpine:latest
+
+# Writable argument required if changes are to be stored, as by default containers are read only
+apptainer exec --writable /tmp/alpine apt-get install python
+
+apptainer build /tmp/my_finished_container.sif /tmp/alpine
+```
+
+- You can't generate a `.def` from a `.sif`, so as you develop it's important to log changes in a `.def` file, then test it at the end. 
+
+- Haven't tested, but it's probably possible to make the sandbox container from a `.def` directly.
+
+## Binding directories to the container
+
+- Apart from a few bound directories ($HOME, $CWD, /tmp, and some others), the file system in a container is separate from the host system, but you may need to work with data input found on the host.
+
+- You can bind local directories to the container, i.e. "mount binding" (though note changes made to mounted directories in the container ARE preserved on the local - they are the same folder!).
+
+`apptainer exec --bind /scratch example.sif ls /scratch` # This command passes the "--bind /scratch" argument to apptainer, and then "ls /scratch" is executed in the container to show that it worked.
+
+- The `--bind` argument can be passed to `run` and `shell` also.
+
+- To bind multiple directories, separate with commas:
+
+`apptainer exec --bind /scratch,/data example.sif ls /scratch /data` # Scratch and data are bound
+
+- Bind a directory to a different name, separate with a colon:
+
+`apptainer exec --bind /scratch:/data example.sif ls /data` # Scratch is bound AS data
+
+
+## Tips
+
+- Use `/opt` or `/usr/local` for custom files and software installations. Avoid `/home` and `/root`.
+
+- Sensitive code or data should be bind mounted onto the container rather than incorporated during the build, as then they won't be public in the image. Dependencies of said sensitive code can be included safely in the image during build.
+
+- Despite the issues with conda/mamba described at the top - they can be used safely within a container, see below `.def` example:
+
+```
+Bootstrap: docker
+From: mambaorg/micromamba:latest
+
+%files
+environment.yml /opt
+
+%post
+    micromamba install -q -y -n base -f /opt/environment.yml
+
+    micromamba clean --all --yes
+
+%labels
+    EnvironmentFile: /opt/environment.yml
+
+%help
+    This container contains a mamba environment defined by /opt/environment.yml
+
+    To run xyz from the environment:
+
+        apptainer run my_environment.sif xyz
+
+```
