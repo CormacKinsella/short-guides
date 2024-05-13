@@ -155,6 +155,16 @@ sudo nano /etc/resolv.conf
 nameserver 8.8.8.8
 ```
 
+- If using WSL2 you may also want to edit `/etc/wsl.conf` to prevent WSL2 from overwriting your `resolv.conf` edits on reboot:
+
+```
+sudo nano /etc/wsl.conf
+# Add the following lines:
+
+[network]
+generateResolvConf = false
+```
+
 - Sensitive code or data should be bind mounted onto the container rather than incorporated during the build, as then they won't be public in the image. Dependencies of said sensitive code can be included safely in the image during build.
 
 - Despite the issues with conda/mamba described at the top - they can be used safely within a container, see below `.def` example:
