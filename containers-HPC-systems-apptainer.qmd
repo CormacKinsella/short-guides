@@ -110,20 +110,22 @@ From: python:latest
 
 - If developing a container you may want to make changes to it & test things. This is possible with a sandbox container, which is a directory structure rather than a `.sif`.
 
-- Example workflow:
+- Example workflows:
 
 ```
+# Using .def file
+apptainer build --sandbox ./sandContainer environment.def
+
+# Using pull from registry
 apptainer build --sandbox /tmp/alpine docker://alpine:latest
 
-# Writable argument required if changes are to be stored, as by default containers are read only
+# The writable argument is required if changes need to be stored (containers are read only by default)
 apptainer exec --writable /tmp/alpine apt-get install python
 
 apptainer build /tmp/my_finished_container.sif /tmp/alpine
 ```
 
-- You can't generate a `.def` from a `.sif`, so as you develop it's important to log changes in a `.def` file, then test it at the end. 
-
-- Haven't tested, but it's probably possible to make the sandbox container from a `.def` directly.
+- You can't generate a `.def` from a `.sif`, so as you develop a sandbox container intended for portability it's important to log changes in a draft `.def` file, then test it at the end.
 
 ## Binding directories to the container
 
