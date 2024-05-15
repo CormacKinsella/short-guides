@@ -147,7 +147,7 @@ apptainer build /tmp/my_finished_container.sif /tmp/alpine
 
 ## Tips
 
-- Use `/opt` or `/usr/local` for custom files and software installations. Avoid `/home` and `/root`.
+- Use `/opt` or `/usr/local` for custom files and software installations. Avoid `/home` and `/root`. This is due to those folders being bound.
 
 - If getting `TLS handshake timeout` errors, consider changing the DNS server to Google's:
 
