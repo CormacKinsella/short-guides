@@ -61,3 +61,37 @@ nano ~/.ssh/authorized_keys
 
 # Paste the contents of the public key file, exit both server and local client, reboot, and log in
 ```
+
+## Remote development on a cluster using VSCode
+
+- You can `ssh` into a remote server via a terminal in VSCode, however you lose the 'VSCode experience'
+
+- To connect and keep this more complete IDE interface:
+
+- Install the VSCode `Remote - SSH` extension
+
+- Set up the configuration offered when running `Remote-SSH: Connect to Host...`
+
+- If you're working on WSL2 within a Microsoft installation of VSCode, the extension will run 'locally', i.e. on the Microsoft side of the system, therefore:
+
+	1. Save the ssh config file on the Microsoft side of the system, e.g.: `C:\Users\myuser\.ssh\config`
+	1. Copy your public and private keys from the WSL2 side to the Microsoft side, also to the .ssh directory
+	1. Edit the config file to ensure the path to the private key is in Microsoft format, e.g.:
+
+```
+Host dardel
+  HostName dardel.pdc.kth.se
+  User MY_USERNAME
+  IdentityFile C:\Users\myuser\.ssh\id-ed25519-pdc_USEFUL-NAME
+```
+
+## Thinlinc connection for graphical applications/browser access
+
+- [Download Thinlinc](https://www.cendio.com/thinlinc/download) (if working in WSL2, it doesn't matter which side you install it on - but you'll need to have your ssh keys on the same side as Thinlinc)
+- [Install it](https://www.cendio.com/resources/docs/tag-devel/html/client_linux.html), e.g.: `sudo dpkg -i thinlinc-client_4.16.0-3389_amd64.deb`
+- Add the location of the `tlclient` binary to your `PATH` & `~/.bashrc`, e.g.: `export PATH=$PATH:/opt/thinlinc/bin`
+- Run `tlclient` and add a new connection with the server hostname `dardel-vnc.pdc.kth.se` & your username
+- Click Options > Security > Public key (under Authentication method)
+- Click OK, then enter the path to your private key (e.g. `~/.ssh/id-ed25519-pdc_USEFUL-NAME`)
+- Click connect - you should now be in!
+- Optionally, you could also make an alias in your `~/.bashrc` for the `tlclient` command, e.g.: `alias thinlinc='tlclient'`
