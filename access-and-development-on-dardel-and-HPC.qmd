@@ -62,7 +62,7 @@ nano ~/.ssh/authorized_keys
 # Paste the contents of the public key file, exit both server and local client, reboot, and log in
 ```
 
-## Remote development on a cluster using VSCode
+# Remote development on a cluster using VSCode
 
 - You can `ssh` into a remote server via a terminal in VSCode, however you lose the 'VSCode experience'
 
@@ -85,7 +85,7 @@ Host dardel
   IdentityFile C:\Users\myuser\.ssh\id-ed25519-pdc_USEFUL-NAME
 ```
 
-## Thinlinc connection for graphical applications/browser access
+# Thinlinc connection for graphical applications/browser access
 
 - [Download Thinlinc](https://www.cendio.com/thinlinc/download) (if working in WSL2, it doesn't matter which side you install it on - but you'll need to have your ssh keys on the same side as Thinlinc)
 - [Install it](https://www.cendio.com/resources/docs/tag-devel/html/client_linux.html), e.g.: `sudo dpkg -i thinlinc-client_4.16.0-3389_amd64.deb`
