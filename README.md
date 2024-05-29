@@ -1,1 +1,1 @@
-# Guides for common HPC issues
+# Guides for some HPC issues
