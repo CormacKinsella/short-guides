@@ -1,0 +1,27 @@
+# Pixi bin cleanup
+
+- The pixi package manager currently lacks cleanup of the bin directory when you delete an env, which can lead to a lot of dead scripts in the bin directory.
+
+- This script will loop through all files in the bin directory and check if the script is executable and has a corresponding binary in the env directory. If the binary does not exist, the script will be removed.
+
+```
+#!/bin/bash
+
+# Loop through each file in the bin directory
+
+for file in *; do
+  # Check if the file is a regular file and executable
+  if [ -f "$file" ] && [ -x "$file" ]; then
+    # Extract the target binary path from the script
+    target_binary=$(grep -Eo '"/.*/bin/[^"]+"' "$file" | tr -d '"')
+    # Check if the target binary exists
+    if [ -e "$target_binary" ]; then
+      echo "Binary exists for script: $file"
+    else
+      # Remove the script with the non-existent binary
+      echo "Removing script with non-existent binary: $file"
+      rm "$file"
+    fi
+  fi
+done
+```
