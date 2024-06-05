@@ -10,6 +10,11 @@
 # Loop through each file in the bin directory
 
 for file in *; do
+  # Skip "pixi" binary
+  if [ "$file" = "pixi" ]; then
+    echo "Skipping pixi binary."
+    continue
+  fi
   # Check if the file is a regular file and executable
   if [ -f "$file" ] && [ -x "$file" ]; then
     # Extract the target binary path from the script
