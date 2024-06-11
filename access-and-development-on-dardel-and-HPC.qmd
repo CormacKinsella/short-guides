@@ -8,17 +8,17 @@
 
 ### Create a new public/private key pair & give it a useful name
 
-`ssh-keygen -t ed25519 -f ~/.ssh/id-ed25519-pdc_USEFUL-NAME`
+`ssh-keygen -t ed25519 -f ~/.ssh/id-ed25519-dardel`
 
 ### Upload the **public** key (.pub extension) to PDC [here](https://loginportal.pdc.kth.se)
 
 ### To login:
 
-`ssh -i ~/.ssh/id-ed25519-pdc_USEFUL-NAME MY_USERNAME@dardel.pdc.kth.se`
+`ssh -i ~/.ssh/id-ed25519-dardel <MY_USERNAME>@dardel.pdc.kth.se`
 
 - Basic ssh/scp functionality should now be possible by specifying the private key in your `ssh` command
 
-## More advanced customisation:
+## Further customisation:
 
 ### Avoid typing the key path and user@hostname each time you ssh into a specific server
 
@@ -30,20 +30,26 @@
 Host dardel
         Hostname dardel.pdc.kth.se
         User MY_USERNAME
-        IdentityFile ~/.ssh/id-ed25519-pdc_USEFUL-NAME
+        IdentityFile ~/.ssh/id-ed25519-dardel
 ```
 
 -   This associates the server hostname, your username, and your private ssh key with the phrase `dardel`
 
 -   You can now just type `ssh dardel` to use those credentials
 
--   Save as many of these custom credential sets as you need in the same config file
+-   Save as many of these custom credential sets as you need in the same config file (e.g. for different clusters/servers)
 
-### Avoid typing your password each time (works for the existing session):
+### Connect using one SSH key from different IP addresses
+
+- Dardel limits access from SSH keys to specific approved IPs. You can add approved IP addresses or domains to a registered SSH key [here](https://loginportal.pdc.kth.se).
+
+- Login so you can see the registered keys, click `add address`, and add an IP or domain.
+
+### Avoid typing your password each time (works for the existing session, or can be added to `~/.bashrc`):
 
 `eval $(ssh-agent)`
 
-`ssh-add ~/.ssh/id-ed25519-pdc_USEFUL-NAME`
+`ssh-add ~/.ssh/id-ed25519-dardel`
 
 ## Other notes
 
@@ -51,7 +57,7 @@ Host dardel
 
 -   For these, you can upload your public key from the command line:
 
-`ssh-copy-id -i ~/.ssh/id-ed25519-rackham.pub MY_USERNAME@rackham.uppmax.se`
+`ssh-copy-id -i ~/.ssh/id-ed25519-rackham.pub <MY_USERNAME>@rackham.uppmax.se`
 
 -   Or do it manually from within the remote server:
 
@@ -75,14 +81,14 @@ nano ~/.ssh/authorized_keys
 - If you're working on WSL2 within a Microsoft installation of VSCode, the extension will run 'locally', i.e. on the Microsoft side of the system, therefore:
 
 	1. Save the ssh config file on the Microsoft side of the system, e.g.: `C:\Users\myuser\.ssh\config`
-	1. Copy your public and private keys from the WSL2 side to the Microsoft side, also to the .ssh directory
-	1. Edit the config file to ensure the path to the private key is in Microsoft format, e.g.:
+	2. Copy your public and private keys from the WSL2 side to the Microsoft side, also to the `.ssh` directory
+	3. Edit the config file to ensure the path to the private key is in Microsoft format, e.g.:
 
 ```
 Host dardel
   HostName dardel.pdc.kth.se
   User MY_USERNAME
-  IdentityFile C:\Users\myuser\.ssh\id-ed25519-pdc_USEFUL-NAME
+  IdentityFile C:\Users\myuser\.ssh\id-ed25519-dardel
 ```
 
 # Thinlinc connection for graphical applications/browser access
@@ -92,6 +98,6 @@ Host dardel
 - Add the location of the `tlclient` binary to your `PATH` & `~/.bashrc`, e.g.: `export PATH=$PATH:/opt/thinlinc/bin`
 - Run `tlclient` and add a new connection with the server hostname `dardel-vnc.pdc.kth.se` & your username
 - Click Options > Security > Public key (under Authentication method)
-- Click OK, then enter the path to your private key (e.g. `~/.ssh/id-ed25519-pdc_USEFUL-NAME`)
+- Click OK, then enter the path to your private key (e.g. `~/.ssh/id-ed25519-dardel`)
 - Click connect - you should now be in!
 - Optionally, you could also make an alias in your `~/.bashrc` for the `tlclient` command, e.g.: `alias thinlinc='tlclient'`
