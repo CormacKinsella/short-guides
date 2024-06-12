@@ -1,0 +1,4 @@
+# Requires bat in $PATH
+
+alias q='squeue -u $USER -o "%8A %12j %8u %18a %12l %12M %7T %16R %10P %6D %6C %m" | bat'
+
