@@ -1,0 +1,78 @@
+# Contributing bioconda recipes
+
+> Note that for simple updates, you can use the `bioconda-utils` tool to automate the process. Here I went through it more manually to understand the process better.
+
+## Documentation
+
+- Full documentation & workflow available [here](https://bioconda.github.io/contributor/index.html)
+
+## Steps
+
+- Forked and cloned locally: `gh repo clone MYUSER_NAME/bioconda-recipes`
+
+- Added upstream remote (only needed once):
+```
+cd bioconda-recipes
+git remote add upstream git@github.com:bioconda/bioconda-recipes.git
+```
+
+- Update local master branch from upstream (bioconda), and push to my fork (origin)
+
+- Make a new branch
+
+```
+git checkout master
+git pull upstream master
+git push origin master
+git checkout -b update_vg
+```
+
+- Edit the recipe file, e.g. for `vg`: `recipes/vg/meta.yaml`
+
+- For this recipe, changes were:
+	1. Updated version number from 1.56.0 to 1.59.0
+	2. Calculate & update sha256 checksums (`sha256sum vg`)
+	3. Linting changes (see below)
+
+- Before submitting a PR, test locally with `bioconda-utils`
+
+- Used pixi to install: `pixi global install -c conda-forge -c bioconda bioconda-utils`
+
+- Navigate to the `bioconda-recipes` directory and run:
+
+```
+bioconda-utils lint --git-range master
+bioconda-utils build --docker --mulled-test --git-range master
+
+# Note: master is correct here, as we are comparing our changes against the master branch
+```
+
+- After linting and building successfully...
+
+- Add, commit, and push changes to fork
+
+```
+git add 
+git commit -m "update vg to v1.59.0"
+git push -u origin update_vg
+```
+
+- Make the PR on GitHub
+
+- Once their checks are run and turn green, comment the following: `@BiocondaBot please add label`
+
+- Once merged...
+
+```
+# Delete local branch
+git branch -D my_branch
+
+# Delete branch in GitHub fork
+git push origin -d my_branch
+
+# And keep on top of changes before next branch
+git checkout master
+git pull upstream master
+```
+
+- Wait for at least 30 minutes for changes to propagate to the bioconda channel
