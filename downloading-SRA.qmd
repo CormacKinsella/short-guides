@@ -1,0 +1,9 @@
+# Downloading SRA FASTQs
+
+- conda environment
+
+conda install -c bioconda sra-tools
+
+- downloading a large file:
+
+fasterq-dump --split-files SRR8943075   # splits the forward and reverse reads into different files
