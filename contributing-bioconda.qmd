@@ -34,7 +34,7 @@ git checkout -b update_vg
 	2. Calculate & update sha256 checksums (`sha256sum vg`)
 	3. Linting changes (see below)
 
-- Before submitting a PR, test locally with `bioconda-utils`
+- Before submitting a PR, test locally with `bioconda-utils` (no need to do this really - will be done again on GitHub, just for practice)
 
 - Used pixi to install: `pixi global install -c conda-forge -c bioconda bioconda-utils`
 
