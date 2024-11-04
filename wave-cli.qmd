@@ -1,0 +1,13 @@
+
+# Build and host Seqera wave container via the wave CLI
+
+- Done using wave-1.5.0 via the jar (facing issues with the Linux binary currently)
+
+## Build Singularity container from Conda package & hoston Seqera OCI registry
+
+- Note, `--freeze` "Request a container freeze" - hosting on the Seqera registry
+
+`java -jar wave-1.5.0.jar --singularity --conda-package vg=1.60.0 --freeze --await`
+
+>[!TIP]
+> `--freeze` works without `--build-repository` only for conda packages and not for a custom Dockerfile
