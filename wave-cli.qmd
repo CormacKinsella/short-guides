@@ -11,3 +11,10 @@
 
 >[!TIP]
 > `--freeze` works without `--build-repository` only for conda packages and not for a custom Dockerfile
+
+
+## Multiple packages
+
+- Provide `--conda-package` multiple times:
+
+`java -jar wave-1.5.0.jar --singularity --conda-package kmc=3.2.4 --conda-package vg=1.60.0 --freeze`
