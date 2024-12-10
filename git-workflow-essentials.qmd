@@ -34,3 +34,6 @@ git branch -d newFeature
 
 # Delete remote branch
 git push -d origin newFeature
+
+# Update list of available branches (e.g. on a separate system)
+git fetch --prune
