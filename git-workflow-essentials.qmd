@@ -30,4 +30,7 @@ git push -u origin newFeature
 gh pr create --base dev --head newFeature --title "This feature was fixed"
 
 # Delete old feature branch (e.g. after successful merge into dev)
-git branch -d newFeature                                                
+git branch -d newFeature
+
+# Delete remote branch
+git push -d origin newFeature
