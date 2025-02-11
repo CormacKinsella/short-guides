@@ -1,32 +1,45 @@
-# Pixi bin cleanup
-
-- The pixi package manager currently lacks cleanup of the bin directory when you delete an env, which can lead to a lot of dead scripts in the bin directory.
-
-- This script will loop through all files in the bin directory and check if the script is executable and has a corresponding binary in the env directory. If the binary does not exist, the script will be removed.
-
-```
 #!/bin/bash
 
-# Loop through each file in the bin directory
+# Loop through each file in the bin directory and handle
 
-for file in *; do
-  # Skip "pixi" binary
-  if [ "$file" = "pixi" ]; then
-    echo "Skipping pixi binary."
-    continue
-  fi
-  # Check if the file is a regular file and executable
-  if [ -f "$file" ] && [ -x "$file" ]; then
-    # Extract the target binary path from the script
-    target_binary=$(grep -Eo '"/.*/bin/[^"]+"' "$file" | tr -d '"')
-    # Check if the target binary exists
-    if [ -e "$target_binary" ]; then
-      echo "Binary exists for script: $file"
-    else
-      # Remove the script with the non-existent binary
-      echo "Removing script with non-existent binary: $file"
-      rm "$file"
-    fi
-  fi
-done
-```
+	# Note: pixi 0.35.0 introduced breaking change to this script
+	# "pixi global exposed binaries are not scripts anymore but actual executables, resulting in significant speedup and better compatibility with other tools."
+	# Therefore added new logic for handling ELF 64-bit files, but kept the old logic for backwards compatibility.
+	# Binary paths are still found in the trampoline_configuration directory, so this is used in these cases.
+
+for file in *
+	do
+		# Leave pixi binary alone
+		if [ "$file" = "pixi" ]; then
+			echo "Skipping pixi binary."
+			continue
+		fi
+		# Check file is regular and executable
+		if [[ -f "$file" && -x "$file" ]]; then
+			# Store the file type
+			filetype=$(file "$file")
+			# Handle binaries
+			if [[ "$filetype" == *"ELF 64-bit"* ]]; then
+				target_binary=$(grep -Eo '"/.*/bin/'"$file"'.*"' "./trampoline_configuration/$file.json" | tr -d '"')
+				if [[ -e "$target_binary" ]]; then
+					echo "Binary exists for binary: $file"
+				else
+					echo "Removing binary with non-existent binary: $file"
+					rm "$file"
+				fi
+				continue
+			# Handle scripts
+			elif [[ "$filetype" == *"ASCII text executable"* ]]; then
+				target_binary=$(grep -Eo '"/.*/bin/[^"]+"' "$file" | tr -d '"')
+				if [[ -e "$target_binary" ]]; then
+					echo "Binary exists for script: $file"
+				else
+					echo "Removing script with non-existent binary: $file"
+					rm "$file"
+				fi
+			fi
+		else
+			echo "Non-regular or non-executable file: $file"
+		fi
+
+	done
