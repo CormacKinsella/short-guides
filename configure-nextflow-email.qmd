@@ -1,0 +1,36 @@
+# Configure sending email reports with Nextflow
+
+## Dependencies and Nextflow config
+
+- `msmtp-sendmail` is packaged in the `pixi` environment
+- The workflow itself has the parameter `--email_report` to trigger email reports, which fails if no email provided with `--email`
+- Therefore those two params are all that needs to be done on the Nextflow side
+
+## On the user side, they need to also configure a sending email for sendmail
+
+- For example, this can be done by making a [mailgun](https://app.mailgun.com/) account and using their SMTP server
+- With that account a domain is already created using SMTP hostname `smtp.mailgun.org`
+- If using their sandbox domain, receiving email addresses must be pre-verified (on the setup tab). This may take some minutes to kick in.
+- SMTP settings can be found on the setup tab by clicking `SMTP -> select`
+- These are then added on the local system by creating a `~/.msmtprc` file with the following content (adjusted for user sending account):
+
+```
+
+defaults
+auth          on
+tls           on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+
+# SMTP server configuration
+
+account        nextflow
+host           smtp.mailgun.org
+port           587
+from           postmaster@sandbox.mailgun.org
+user           postmaster@sandbox.mailgun.org
+password       YOUR-PASSWORD-HERE
+
+# Set a default account
+account default : nextflow
+
+```
