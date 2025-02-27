@@ -8,7 +8,6 @@
 
 `wave --singularity --conda vg=1.60.0 --freeze`
 
-
 >[!TIP]
 > `--conda` assumes default channels `conda-forge` `bioconda`
 > `--freeze` "Request a container freeze" - will auto-host on Seqera registry
