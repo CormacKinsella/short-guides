@@ -1,0 +1,90 @@
+# Remote development environments with GitHub Codespaces and devcontainers
+
+## Background
+
+### Migration from gitpod
+
+- Downsides of gitpod:
+	- No access to the VScode sync server (they use their own), so needed to configure VScode twice (e.g. settings/keybindings) + keep it in sync manually
+	- No longer free from September 2025
+	- Less smooth with private repos
+
+- Other reasons to migrate:
+	- Gitpod moving to `.devcontainers.json` format rather than `.gitpod.yml`, which Codespaces also uses, so this step is required anyway
+	- Codespaces advantages:
+		- Part of the Microsoft ecosystem (GitHub, VScode, copilot, etc)
+		- Extension available in VScode: launch from VScode or browser
+		- Same settings sync server as VScode
+		- Can pull shell configuration from a `dotfiles` repository
+		- Seamless with private repositories
+		- Supports secrets
+
+## Codespaces basics
+
+- Preconfigure a development environment for each repository by pushing a `.devcontainer/devcontainer.json` file to the repository. VScode can also automate this with predefined templates
+
+- Each git branch can have its own development environment json, and each repo can have multiple environments, done by adding a folder layer inside `.devcontainer` for each environment, e.g. `.devcontainer/test/devcontainer.json`
+
+## Configuration with the devcontainer.json file
+
+- Configure frameworks, tools, extensions, port forwarding, containers, etc.
+
+- Usually accompanied by a `Dockerfile` to build the container, see below
+
+- Best practices is to **only configure required core functionality** in the file: VScode settings are syned with settings sync and shell config is done with dotfiles, see personalisation section
+
+### Container image
+
+- Two main options: provide a `Dockerfile` alongside the json (built on launch), or link to a pre-built image
+
+- Using a [pre-built container image](https://containers.dev/implementors/json_reference/#image-specific), e.g.:
+
+```{json}
+
+{
+	"name": "Nextflow development environment",
+	"image": "ghcr.io/cormackinsella/nf-development:latest",
+	"remoteUser": "codespace"
+}
+
+```
+
+- Using a [Dockerfile](https://containers.dev/implementors/json_reference/#compose-specific):
+
+## Personalisation
+
+### VScode settings & keybindings
+
+- Turn on settings sync in VScode desktop
+
+- Turn on settings sync in [VScode Codespaces](https://github.com/settings/codespaces)
+
+- Trust the target repositories (or all, but not recommended)
+
+### Shell/UNIX configuration
+
+- Make a GitHub repository for storing dotfiles, e.g. `user/dotfiles`
+
+- Turn on [use dotfiles](https://github.com/settings/codespaces), and point it to the `dotfiles` repository
+
+- In the `dotfiles` repo add configuration dotfiles (e.g. `.bashrc`) and codespaces will automatically symlink them to `$HOME`
+
+- To further customise the process, you can also create a config file called `bootstrap.sh` (or [any of the approved filenames](https://docs.github.com/en/codespaces/setting-your-user-preferences/personalizing-github-codespaces-for-your-account#dotfiles)). This can run custom tasks.
+
+## Codespaces badge for repositories
+
+- Full docs [here](https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/setting-up-your-repository/facilitating-quick-creation-and-resumption-of-codespaces)
+
+- Add badge to README.md by adding the following:
+
+```
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/OWNER/REPO-NAME)
+```
+
+## Migration tasks
+
+- Delete `.gitpod.yml`
+- Add `.devcontainer` folder with `devcontainer.json` (optionally also `Dockerfile`)
+- Replace `Open in Gitpod` badge with `Open in Codespaces` badge
+- Ensure image used replaces remote user `gitpod` with `codespace` (assuming a custom base image)
+- Ensure image is only core functionality: set up VScode settings sync for settings/keybindings, and set up a `dotfiles` repo for shell config
