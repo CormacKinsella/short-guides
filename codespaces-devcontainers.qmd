@@ -25,6 +25,16 @@
 
 - Each git branch can have its own development environment json, and each repo can have multiple environments, done by adding a folder layer inside `.devcontainer` for each environment, e.g. `.devcontainer/test/devcontainer.json`
 
+## GitHub configuration
+
+- Github settings -> "Code, planning, and automation" -> Codespaces
+
+- Here you can set general codespace settings for your account, such as the `dotfile` repository (see below), settings sync, trusted repos
+
+- You can configure whether to launch codespaces in the browser VScode when launching from a GitHub respository page. Reasons to choose local include certain keybinding clashes in browsers, though there are some workarounds not covered here.
+
+- Note: you can also launch a codespace from the VScode command palette if you have the extension installed and configuration done
+
 ## Configuration with the devcontainer.json file
 
 - Configure frameworks, tools, extensions, port forwarding, containers, etc.
