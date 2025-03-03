@@ -15,8 +15,8 @@ if [ -d "$DIRECTORY" ]; then
 
 	for file in *
 		do
-			if [ "$file" = "cleanup-bin.sh" ]; then
-				echo "Skipping cleanup-bin.sh script."
+			if [ "$file" = "cleanup-pixi-bin.sh" ]; then
+				echo "Skipping cleanup-pixi-bin.sh script."
 				continue
 			fi
 			# Leave pixi binary alone
