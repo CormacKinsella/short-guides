@@ -8,7 +8,7 @@ git ch main
 git merge dev
 git push
 - Create release with tag v1.2.1, title 1.2.1, and release notes.
-gh release create v1.2.1 -t "1.2.1" -n "Description of patch"
+gh release create v1.2.1 --title "1.2.1" --notes "Description of patch"
 git fetch --tags	# Get the new tag locally
 
 ## Make and track a local version of remote
