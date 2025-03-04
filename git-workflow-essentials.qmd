@@ -1,7 +1,18 @@
 # Collaboration with git essentials
 
+
+## Make a release
+
+- Add, commit, and push changes, assuming working on dev...
+git ch main
+git merge dev
+git push
+- Create release with tag v1.2.1, title 1.2.1, and release notes.
+gh release create v1.2.1 -t "1.2.1" -n "Description of patch"
+git fetch --tags	# Get the new tag locally
+
 ## Make and track a local version of remote
-git checkout -b NAME origin/NAME     # E.g. git ch -b docker origin/docker
+git checkout -b NAME origin/NAME	# E.g. git ch -b docker origin/docker
 
 ## Workflows:
 
@@ -9,13 +20,13 @@ git checkout -b NAME origin/NAME     # E.g. git ch -b docker origin/docker
 git checkout dev && git pull origin dev
 git checkout -b newFeature dev
 
-### "Start of day" - continue working on an existing feature branch
+### "Start of day" - continue working on an existing feature branch but include dev changes
 git checkout dev && git pull origin dev
 git checkout newFeature && git merge dev
 
 # Doing work in a branch
-git add FILE.txt    # stage some changes
-git commit -m "message about commit"  # Commit the changes
+git add FILE.txt	# stage some changes
+git commit -m "message about commit"	# Commit the changes
 
 # "End of day" procedure (if merging back to dev)
 git checkout dev && git pull origin dev
